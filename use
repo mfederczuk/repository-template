@@ -1,0 +1,140 @@
+#!/bin/bash
+# -*- sh -*-
+# vim: set syntax=sh
+# code: language=shellscript
+
+# Script to copy the template and replace the variables.
+# Copyright (C) 2021  Michael Federczuk
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+if [[ "$-" = *'i'* ]]; then
+	echo "${BASH_SOURCE[0]}: script was called interactively" >&2
+	return 124
+fi
+
+set -o errexit
+
+if [ ! -t 1 ]; then
+	echo "$0: stdin not a tty" >&2
+	exit 48
+fi
+
+# region argument
+
+declare target_relpath
+case $# in
+	0)
+		echo "$0: missing argument: <target>" >&2
+		exit 3
+		;;
+	1)
+		if [ -z "$1" ]; then
+			echo "$0: argument must not be empty" >&2
+			exit 9
+		fi
+
+		target_relpath="$(realpath -ms --relative-to=. "$1")"
+		;;
+	*)
+		echo "$0: too many arguments: $(($# - 1))"
+		;;
+esac
+readonly target_relpath
+
+# endregion
+
+declare root_dir_relpath
+root_dir_relpath="$(realpath -s --relative-to=. -- "$(dirname "$0")")"
+readonly root_dir_relpath
+
+# region reading template vars from config
+
+declare template_vars_config_file_relpath
+template_vars_config_file_relpath="$(realpath -s --relative-to=. -- "$root_dir_relpath/template_vars.cfg")"
+readonly template_vars_config_file_relpath
+
+declare -a template_var_names=()
+declare -A template_var_descs_by_var_name=()
+declare line template_var_name template_var_value
+
+while read -r line; do
+	if [[ "$line" =~ ^'#' ]]; then
+		continue
+	fi
+
+	if [[ ! "$line" =~ ^([[:alnum:]_]+)[[:space:]]*':'[[:space:]]*(.*)$ ]]; then
+		continue
+	fi
+
+	template_var_name="${BASH_REMATCH[1]}"
+	template_var_value="${BASH_REMATCH[2]}"
+
+	if [ -z "$template_var_value" ]; then
+		template_var_value="$template_var_name"
+	fi
+
+	template_var_names+=("$template_var_name")
+	template_var_descs_by_var_name["$template_var_name"]="$template_var_value"
+done < "$template_vars_config_file_relpath"
+
+unset -v template_var_value template_var_name line
+readonly template_var_descs_by_var_name template_var_names
+
+# endregion
+
+# region prompting user for template vars
+
+declare -A template_var_value_by_var_name=()
+declare template_var_name template_var_value
+
+for template_var_name in "${template_var_names[@]}"; do
+	read -r -p "${template_var_descs_by_var_name["$template_var_name"]}: " template_var_value
+	template_var_value_by_var_name["$template_var_name"]="$template_var_value"
+done
+
+unset -v template_var_name template_var_name
+readonly template_var_value_by_var_name
+
+# endregion
+
+# region copying template
+
+declare template_dir_relpath
+template_dir_relpath="$(realpath -s --relative-to=. -- "$root_dir_relpath/template")"
+readonly template_dir_relpath
+
+cp -aT -- "$template_dir_relpath" "$target_relpath"
+
+
+declare template_var_name template_var_replacment
+
+for template_var_name in "${template_var_names[@]}"; do
+	template_var_replacment="${template_var_value_by_var_name["$template_var_name"]}"
+	template_var_replacment="${template_var_replacment//'/'/'\/'}"
+
+	find "./$target_relpath" -type f \
+	     -exec sed -Ei s/"\\{\\{$template_var_name\\}\\}"/"$template_var_replacment"/g {} \;
+done
+
+unset -v template_var_replacment template_var_name
+
+
+find "./$target_relpath" -name '.gitkeep' -type f -empty -delete
+
+
+echo
+git init -- "$target_relpath"
+
+# endregion
