@@ -1,3 +1,8 @@
+<!--
+  Copyright (c) 2021 Michael Federczuk
+  SPDX-License-Identifier: CC-BY-SA-4.0
+-->
+
 # Repository Template #
 
 ## About ##
@@ -29,5 +34,6 @@ curl 'https://raw.githubusercontent.com/mfederczuk/repository-template/master/we
 
 ## License ##
 
-This template is licensed under the [**Unlicense**](LICENSES/Unlicense.txt).  
-For more information about copying and licensing, see the [COPYING.txt](COPYING.txt) file.
+Generally, this template is published into the public domain under [**CC0**](LICENSES/CC0-1.0.txt), though different
+licenses apply for individual files.  
+For more information about copying and licensing, see the [`COPYING.txt`](COPYING.txt) file.

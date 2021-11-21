@@ -1,3 +1,8 @@
+<!--
+  Copyright (c) 2021 Michael Federczuk
+  SPDX-License-Identifier: CC-BY-SA-4.0
+-->
+
 # Contribution Guidelines #
 
 Any contribution to **{{REPO_DISPLAY_NAME}}** is welcome and greatly appreciated!  
@@ -33,3 +38,6 @@ There are a variety of things that can be done to contribute:
   * [Issues](https://github.com/mfederczuk/{{GITHUB_REPO_NAME}}/issues)
   * [Pull Requests](https://github.com/mfederczuk/{{GITHUB_REPO_NAME}}/pulls)
   * [Discussions](https://github.com/mfederczuk/{{GITHUB_REPO_NAME}}/discussions)
+
+Also, keep in mind that all contributions to any files (existing or new) are subject to the [`LICENSE.txt`](LICENSE.txt)
+and [`COPYING.txt`](COPYING.txt) files.

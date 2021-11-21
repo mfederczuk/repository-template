@@ -1,3 +1,8 @@
+<!--
+  Copyright (c) 2021 Michael Federczuk
+  SPDX-License-Identifier: CC-BY-SA-4.0
+-->
+
 # {{REPO_DISPLAY_NAME}} #
 
 [version_shield]: https://img.shields.io/badge/version-N%2FA_(in_development)-important.svg
@@ -35,5 +40,6 @@ Read through the [Contribution Guidelines](CONTRIBUTING.md) if you want to contr
 
 ## License ##
 
-**{{REPO_DISPLAY_NAME}}** is licensed under [**GNU GPL v3.0**](licenses/GNU-GPL-v3.0.txt) or later.  
-For more information about copying and licensing, see the [COPYING.txt](COPYING.txt) file.
+**{{REPO_DISPLAY_NAME}}** is licensed under both the [**Mozilla Public License 2.0**](LICENSES/MPL-2.0.txt) AND the
+[**Apache License 2.0**](LICENSES/Apache-2.0.txt).  
+For more information about copying and licensing, see the [`COPYING.txt`](COPYING.txt) file.

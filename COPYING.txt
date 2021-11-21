@@ -1,15 +1,34 @@
-All files inside the 'template' directory (regardless of what is written in the 'template/COPYING.txt' file) are
-licensed under:
+All files should contain a SPDX short-form identifier to declare under which license they are published.
+A SPDX short-form identifier takes the form of:
 
-        The Unlicense (LICENSES/Unlicense.txt)
+        SPDX-License-Identifier: <SPDX License Expression>
 
-The 'use' and 'webget.bash' shellscript files are licensed under:
+Read more about SPDX short-form identifiers here: <https://spdx.dev/ids/>
 
-        GNU General Public License v3.0 or later (LICENSES/GNU-GPL-v3.0.txt)
 
-The raw license files, which are all files inside the 'LICENSES' directory, are verbatim copies from their original
-source. Copyright belongs to their respectful authors.
+All files inside the 'template' directory (regardless of what is written in the 'template/LICENSE.txt',
+'template/COPYING.txt' files or what the SPDX short-form identifiers are set to in any files inside the 'template'
+directory) are published into the public domain under:
 
-All other files that do not match any of the before laid out rules are licensed under:
+        Creative Commons Zero v1.0 Universal (LICENSES/CC0-1.0.txt)
 
-        Creative Commons Attribution Share Alike 4.0 International (LICENSES/CC-BY-SA-4.0.txt)
+
+The individual licenses, used in this repository, can be found in the 'LICENSES' directory and are also listed here:
+
+        Full name:        Apache License 2.0
+        Short identifier: Apache-2.0
+        Text file:        LICENSES/Apache-2.0.txt
+
+        Full name:        Creative Commons Attribution Share Alike 4.0 International
+        Short identifier: CC-BY-SA-4.0
+        Text file:        LICENSES/CC-BY-SA-4.0.txt
+
+        Full name:        Creative Commons Zero v1.0 Universal
+        Short identifier: CC0-1.0
+        Text file:        LICENSES/CC0-1.0.txt
+
+        Full name:        Mozilla Public License 2.0
+        Short identifier: MPL-2.0
+        Text file:        LICENSES/MPL-2.0.txt
+
+Each of these files are verbatim copies from their original source. Copyright belongs to their respectful authors.
