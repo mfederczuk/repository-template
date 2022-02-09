@@ -3,7 +3,7 @@
 # vim: set syntax=sh
 # code: language=shellscript
 
-# Copyright (c) 2021 Michael Federczuk
+# Copyright (c) 2022 Michael Federczuk
 # SPDX-License-Identifier: MPL-2.0 AND Apache-2.0
 
 if [[ "$-" = *'i'* ]]; then
@@ -11,7 +11,8 @@ if [[ "$-" = *'i'* ]]; then
 	return 124
 fi
 
-set -o errexit
+set -o errexit # exit on error
+set -o nounset # treat unset variables as error
 
 if [ ! -t 1 ]; then
 	echo "$0: stdin not a tty" >&2
@@ -52,7 +53,7 @@ declare template_vars_config_file_relpath
 template_vars_config_file_relpath="$(realpath -s --relative-to=. -- "$root_dir_relpath/template_vars.cfg")"
 readonly template_vars_config_file_relpath
 
-declare -a template_var_names=()
+declare -a template_var_names=('current_year')
 declare -A template_var_descs_by_var_name=()
 declare line template_var_name template_var_value
 
@@ -67,6 +68,11 @@ while read -r line; do
 
 	template_var_name="${BASH_REMATCH[1]}"
 	template_var_value="${BASH_REMATCH[2]}"
+
+	if [[ ! "$template_var_name" =~ ^[A-Z_]+$ ]]; then
+		echo "$0: $template_var_name: template variable name must consists of all caps and underscores /^[A-Z_]+$/" >&2
+		exit 49
+	fi
 
 	if [ -z "$template_var_value" ]; then
 		template_var_value="$template_var_name"
@@ -83,10 +89,14 @@ readonly template_var_descs_by_var_name template_var_names
 
 # region prompting user for template vars
 
-declare -A template_var_value_by_var_name=()
+declare -A template_var_value_by_var_name=(['current_year']="$(date +%Y)")
 declare template_var_name template_var_value
 
 for template_var_name in "${template_var_names[@]}"; do
+	if [[ ! "$template_var_name" =~ ^[A-Z_]+$ ]]; then
+		continue
+	fi
+
 	read -r -p "${template_var_descs_by_var_name["$template_var_name"]}: " template_var_value
 	template_var_value_by_var_name["$template_var_name"]="$template_var_value"
 done
