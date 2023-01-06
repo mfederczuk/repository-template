@@ -3,135 +3,446 @@
 # vim: set syntax=sh
 # code: language=shellscript
 
-# Copyright (c) 2022 Michael Federczuk
+# Copyright (c) 2023 Michael Federczuk
 # SPDX-License-Identifier: MPL-2.0 AND Apache-2.0
 
-if [[ "$-" = *'i'* ]]; then
-	echo "${BASH_SOURCE[0]}: script was called interactively" >&2
-	return 124
-fi
-
-set -o errexit # exit on error
-set -o nounset # treat unset variables as error
-
-if [ ! -t 1 ]; then
-	echo "$0: stdin not a tty" >&2
-	exit 48
-fi
-
-# region argument
-
-declare target_relpath
-case $# in
-	0)
-		echo "$0: missing argument: <target>" >&2
-		exit 3
-		;;
-	1)
-		if [ -z "$1" ]; then
-			echo "$0: argument must not be empty" >&2
-			exit 9
+case "$-" in
+	(*'i'*)
+		if \command test -n "${BASH_VERSION-}"; then
+			# using `eval` here in case a non-Bash shell tries to parse this branch even if the condition is false
+			\command eval "\\command printf '%s: ' \"\${BASH_SOURCE[0]}\" >&2"
 		fi
 
-		target_relpath="$(realpath -ms --relative-to=. "$1")"
-		;;
-	*)
-		echo "$0: too many arguments: $(($# - 1))"
+		\command printf 'script was called interactively\n' >&2
+		return 124
 		;;
 esac
-readonly target_relpath
+
+set -o errexit
+set -o nounset
+
+# enabling POSIX-compliant behavior for GNU programs
+export POSIXLY_CORRECT=yes POSIX_ME_HARDER=yes
+
+if [ -z "${BASH_VERSION-}" ]; then
+	if [ "${0#/}" = "$0" ]; then
+		argv0="$0"
+	else
+		argv0="$(basename -- "$0" && printf x)"
+		argv0="${argv0%"$(printf '\nx')"}"
+	fi
+	readonly argv0
+
+	printf '%s: GNU Bash is required for this script\n' "$argv0" >&2
+	exit 1
+fi
+
+shopt -s nullglob
+
+
+declare argv0
+if [[ "$0" =~ ^'/' ]]; then
+	argv0="$0"
+else
+	argv0="$(basename -- "$0" && printf x)"
+	argv0="${argv0%$'\nx'}"
+fi
+readonly argv0
+
+
+# region utils
+
+function command_exists() {
+	command -v "$1" > '/dev/null'
+}
+readonly -f command_exists
+
+function dir_is_empty() {
+	local find_out
+	find_out="$(find "$tmp_dir_pathname" -mindepth 1 && printf x)"
+	find_out="${find_out%x}"
+	readonly find_out
+
+	test -z "$find_out"
+}
+readonly -f dir_is_empty
+
+function remove_empty_dir() {
+	if [ -d "$1" ] && dir_is_empty "$1"; then
+		rmdir -- "$1"
+	fi
+}
+readonly -f remove_empty_dir
 
 # endregion
 
-declare root_dir_relpath
-root_dir_relpath="$(realpath -s --relative-to=. -- "$(dirname "$0")")"
-readonly root_dir_relpath
+declare command_name
+for command_name in sed jq find; do
+	if ! command_exists "$command_name"; then
+		printf '%s: %s: program missing\n' "$argv0" "$command_name" >&2
+		exit 27
+	fi
+done
+unset -v command_name
+
+# region cleanup
+
+declare -a _cleanup_expressions
+_cleanup_expressions=()
+
+function _do_cleanup() {
+	local -i i
+	for ((i = (${#_cleanup_expressions[@]} - 1); i >= 0; --i)); do
+		eval "${_cleanup_expressions[i]}"
+	done
+}
+readonly -f _do_cleanup
+
+trap _do_cleanup EXIT TERM INT QUIT
+
+function cleanup_push() {
+	_cleanup_expressions+=("$1")
+}
+readonly -f cleanup_push
+
+function cleanup_pop() {
+	local -i last_index
+	last_index=$((${#_cleanup_expressions[@]} - 1))
+	readonly last_index
+
+	if [ "${1-}" = 'execute' ]; then
+		eval "${_cleanup_expressions[last_index]}"
+	fi
+
+	unset -v _cleanup_expressions\[last_index\]
+}
+readonly -f cleanup_pop
+
+# endregion
+
+# region setting up temporary directory
+
+declare tmp_dir_pathname
+tmp_dir_pathname="${TMPDIR-"${TMP-"/tmp"}"}/mfederczuk_repository_template"
+readonly tmp_dir_pathname
+
+function remove_empty_tmp_dir() {
+	remove_empty_dir "$tmp_dir_pathname"
+}
+readonly -f remove_empty_tmp_dir
+
+cleanup_push remove_empty_tmp_dir
+
+if [ ! -e "$tmp_dir_pathname" ]; then
+	mkdir -m 777 -- "$tmp_dir_pathname"
+fi
+
+# endregion
+
+# region testing for sed -i support
+
+declare sed_i_test_file_pathname
+sed_i_test_file_pathname="$tmp_dir_pathname/$RANDOM.txt"
+
+# shellcheck disable=2317
+function remove_sed_i_test_file() {
+	rm -f -- "$sed_i_test_file_pathname"
+}
+cleanup_push remove_sed_i_test_file
+
+{
+	printf '=== A ===\n'
+	printf '=== B ===\n'
+	printf '=== C ===\n'
+} > "$sed_i_test_file_pathname"
+
+declare sed_i_support
+sed_i_support=false
+if sed -i -e s/'[AC]'/'(\0)'/g "$sed_i_test_file_pathname" &> '/dev/null'; then
+	declare tmp
+	tmp="$(< "$sed_i_test_file_pathname")"
+
+	if [ "$tmp" = $'=== (A) ===\n=== B ===\n=== (C) ===' ]; then
+		sed_i_support=true
+	fi
+
+	unset -v tmp
+fi
+
+if ! $sed_i_support; then
+	printf '%s: sed does not support option -i\n' "$argv0" >&2
+	exit 48
+fi
+
+unset -v sed_i_support
+
+cleanup_pop execute
+unset -f remove_sed_i_test_file
+
+unset -v sed_i_test_file_pathname
+
+# endregion
+
+# region argument
+
+declare target_dir_pathname
+
+function print_usage() {
+	printf 'usage: %s <target_directory>\n' "$argv0" >&2
+}
+
+case $# in
+	(0)
+		printf '%s: missing argument: <target>\n' "$argv0" >&2
+		print_usage
+		exit 3
+		;;
+	(1)
+		if [ -z "$1" ]; then
+			printf '%s: argument must not be empty\n' "$argv0" >&2
+			exit 9
+		fi
+
+		target_dir_pathname="$1"
+		;;
+	(*)
+		printf '%s: too many arguments: %s' "$argv0" $(($# - 1)) >&2
+		print_usage
+		exit 4
+		;;
+esac
+
+unset -v print_usage
+
+readonly target_dir_pathname
+
+# endregion
+
+if [ ! -t 1 ]; then
+	printf '%s: stdin is not a TTY\n' "$argv0" >&2
+	exit 49
+fi
+
+if [ -e "$target_dir_pathname" ]; then
+	if [ ! -d "$target_dir_pathname" ]; then
+		printf '%s: %s: not a directory\n' "$argv0" "$target_dir_pathname" >&2
+		exit 26
+	fi
+
+	printf "The directory '%s' already exists, files that exist in the template will be overriden and other files won't be touched. Continue? [Y/n] " \
+	       "$target_dir_pathname" >&2
+
+	read -r ans
+
+	case "$ans" in
+		(''|['yY'])
+			# continue
+			;;
+		(*)
+			printf 'Aborted.\n' >&2
+			exit 32
+			;;
+	esac
+
+	unset -v ans
+fi
+
+declare -a template_vars
+template_vars=()
+
+declare root_dir_pathname
+root_dir_pathname="$(dirname -- "$0" && printf x)"
+root_dir_pathname="${root_dir_pathname%$'\nx'}"
+readonly root_dir_pathname
 
 # region reading template vars from config
 
-declare template_vars_config_file_relpath
-template_vars_config_file_relpath="$(realpath -s --relative-to=. -- "$root_dir_relpath/template_vars.cfg")"
-readonly template_vars_config_file_relpath
+declare template_vars_config_file_pathname
+template_vars_config_file_pathname="$root_dir_pathname/template_vars.cfg"
+readonly template_vars_config_file_pathname
 
-declare -a template_var_names=('current_year')
-declare -A template_var_descs_by_var_name=()
-declare line template_var_name template_var_value
+if [ ! -e "$template_vars_config_file_pathname" ]; then
+	printf '%s: %s: no such file\n' "$argv0" "$template_vars_config_file_pathname" >&2
+	exit 24
+fi
+if [ ! -f "$template_vars_config_file_pathname" ]; then
+	declare what
+	if [ -d "$template_vars_config_file_pathname" ]; then
+		what='file'
+	else
+		what='regular file'
+	fi
+	readonly what
+
+	printf '%s: %s: not a %s\n' "$argv0" "$template_vars_config_file_pathname" "$what" >&2
+	exit 26
+fi
+
+
+declare line
+declare -i row
+row=0
 
 while read -r line; do
-	if [[ "$line" =~ ^'#' ]]; then
+	((++row))
+
+	if [ -z "$line" ] || [[ "$line" =~ ^'#' ]]; then
 		continue
 	fi
 
 	if [[ ! "$line" =~ ^([[:alnum:]_]+)[[:space:]]*':'[[:space:]]*(.*)$ ]]; then
-		continue
+		printf '%s: %s:%i: invalid line\n' "$argv0" "$template_vars_config_file_pathname" $row >&2
+		exit 50
 	fi
 
+	declare template_var_name template_var_desc
 	template_var_name="${BASH_REMATCH[1]}"
-	template_var_value="${BASH_REMATCH[2]}"
+	template_var_desc="${BASH_REMATCH[2]}"
 
 	if [[ ! "$template_var_name" =~ ^[A-Z_]+$ ]]; then
-		echo "$0: $template_var_name: template variable name must consists of all caps and underscores /^[A-Z_]+$/" >&2
-		exit 49
+		printf '%s: %s:%i: %s: template variable name must only consists of uppercase letters and underscores (/^[A-Z_]+$/)\n' \
+		       "$argv0" "$template_vars_config_file_pathname" $row "$template_var_name" >&2
+		exit 51
 	fi
 
-	if [ -z "$template_var_value" ]; then
-		template_var_value="$template_var_name"
-	fi
+	template_vars+=(
+		"$(jq --null-input --compact-output \
+		      --arg name "$template_var_name" \
+		      --arg desc "$template_var_desc" \
+		      '{ $name, $desc }')"
+	)
 
-	template_var_names+=("$template_var_name")
-	template_var_descs_by_var_name["$template_var_name"]="$template_var_value"
-done < "$template_vars_config_file_relpath"
+	unset -v template_var_name template_var_desc
+done < "$template_vars_config_file_pathname"
 
-unset -v template_var_value template_var_name line
-readonly template_var_descs_by_var_name template_var_names
+unset -v row \
+         line
 
 # endregion
 
 # region prompting user for template vars
 
-declare -A template_var_value_by_var_name=(['current_year']="$(date +%Y)")
-declare template_var_name template_var_value
+declare -i i
+for ((i = 0; i < ${#template_vars[@]}; ++i)); do
+	function jq() {
+		command jq --null-input --compact-output --argjson var "${template_vars[i]}" "$@"
+	}
 
-for template_var_name in "${template_var_names[@]}"; do
-	if [[ ! "$template_var_name" =~ ^[A-Z_]+$ ]]; then
+	declare template_var_has_value
+	template_var_has_value="$(jq '$var."value" | type == "string"')"
+
+	if [ "$template_var_has_value" = 'true' ]; then
+		unset -v template_var_has_value
+		unset -f jq
 		continue
 	fi
 
-	read -r -p "${template_var_descs_by_var_name["$template_var_name"]}: " template_var_value
-	template_var_value_by_var_name["$template_var_name"]="$template_var_value"
-done
+	unset -v template_var_has_value
 
-unset -v template_var_name template_var_name
-readonly template_var_value_by_var_name
+
+	declare template_var_desc
+
+	declare template_var_has_desc
+	template_var_has_desc="$(jq '$var."desc" | type == "string"')"
+
+	if [ "$template_var_has_desc" = 'true' ]; then
+		template_var_desc="$(jq --raw-output '$var."desc"')"
+	else
+		template_var_desc="$(jq --raw-output '$var."name"')"
+	fi
+
+	unset -v template_var_has_desc
+
+	printf '%s: ' "$template_var_desc" >&2
+
+	unset -v template_var_desc
+
+
+	declare template_var_value
+	read -r template_var_value
+
+	template_vars[i]="$(jq --arg value "$template_var_value" '$var + { $value }')"
+
+	unset -f template_var_value \
+	         jq
+done
+unset -v i
+
+# endregion
+
+declare current_year
+current_year="$(date +'%Y')"
+
+template_vars+=(
+	"$(jq --null-input --arg value "$current_year" '{ "name": "current_year", $value }')"
+)
+
+unset -v current_year
+
+# region setting up intermediate target directory
+
+declare intermediate_target_dir_pathname
+intermediate_target_dir_pathname="$tmp_dir_pathname/$RANDOM"
+readonly intermediate_target_dir_pathname
+
+
+function remove_intermediate_target_dir() {
+	rm -rf -- "$intermediate_target_dir_pathname"
+}
+readonly -f remove_intermediate_target_dir
+
+cleanup_push remove_intermediate_target_dir
+
+
+mkdir -- "$intermediate_target_dir_pathname"
 
 # endregion
 
 # region copying template
 
-declare template_dir_relpath
-template_dir_relpath="$(realpath -s --relative-to=. -- "$root_dir_relpath/template")"
-readonly template_dir_relpath
+declare template_dir_pathname
+template_dir_pathname="$root_dir_pathname/template"
+readonly template_dir_pathname
 
-cp -aT -- "$template_dir_relpath" "$target_relpath"
+declare -a template_file_pathnames
+template_file_pathnames=("$template_dir_pathname/"* "$template_dir_pathname/."*)
+
+cp -RPf -- "${template_file_pathnames[@]}" "$intermediate_target_dir_pathname/"
+
+unset -v template_file_pathnames
 
 
-declare template_var_name template_var_replacment
+find "$intermediate_target_dir_pathname" -mindepth 1 -type f -name '.gitkeep' -size 0c -delete
 
-for template_var_name in "${template_var_names[@]}"; do
-	template_var_replacment="${template_var_value_by_var_name["$template_var_name"]}"
+declare -i i
+for ((i = 0; i < ${#template_vars[@]}; ++i)); do
+	declare template_var_name
+	template_var_name="$(jq --null-input --raw-output --argjson var "${template_vars[i]}" '$var."name"')"
+
+	declare template_var_replacment
+	template_var_replacment="$(jq --null-input --raw-output --argjson var "${template_vars[i]}" '$var."value"')"
 	template_var_replacment="${template_var_replacment//'/'/'\/'}"
 
-	find "./$target_relpath" -type f \
-	     -exec sed -Ei s/"\\{\\{$template_var_name\\}\\}"/"$template_var_replacment"/g {} \;
+	find "$intermediate_target_dir_pathname" -mindepth 1 -type f \( -not -empty \) \
+	     -exec sed -i -e s/"{{$template_var_name}}"/"$template_var_replacment"/g '{}' \; > '/dev/null'
+
+	unset -v template_var_replacment
 done
-
-unset -v template_var_replacment template_var_name
-
-
-find "./$target_relpath" -name '.gitkeep' -type f -empty -delete
+unset -v i
 
 
-echo
-git init -- "$target_relpath"
+declare intermediate_file_pathnames
+intermediate_file_pathnames=("$intermediate_target_dir_pathname/"* "$intermediate_target_dir_pathname/."*)
+
+mkdir -p -- "$target_dir_pathname"
+cp -RPf -- "${intermediate_file_pathnames[@]}" "$target_dir_pathname/"
+
+unset -v intermediate_file_pathnames
+
+
+if command_exists git; then
+	printf '\n' >&2
+	git init -- "$target_dir_pathname"
+fi
 
 # endregion

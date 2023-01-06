@@ -20,9 +20,11 @@ This is a generic repository template, containing:
 * [`.editorconfig` file](template/.editorconfig)
 
 The actual template files are located in the [`template`](template) directory and contain template variables in the form
-of `{{VARIABLE_NAME}}` that must be replaced with actual values.  
+of `{{VARIABLE_NAME}}` that must be replaced with actual values.
+
 The [`use`](use) script helps setting up a new project by copying the template to a chosen location, prompting for
-*some* of the variables and replacing these variables with the given values.
+*some* of the variables and replacing these variables with the given values.  
+To use the script, make sure that you have [jq] installed.
 
 The [`webget.bash`](webget.bash) script automatically clones this repository, prompts for wa target and then runs
 the `use` script:
@@ -34,6 +36,8 @@ curl -L 'https://github.com/mfederczuk/repository-template/raw/master/webget.bas
 ```sh
 wget -O- 'https://github.com/mfederczuk/repository-template/raw/master/webget.bash' | bash
 ```
+
+[jq]: <https://github.com/stedolan/jq> "stedolan/jq: Command-line JSON processor"
 
 ## License ##
 
