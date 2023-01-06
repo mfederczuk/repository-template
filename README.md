@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) 2021 Michael Federczuk
+  Copyright (c) 2023 Michael Federczuk
   SPDX-License-Identifier: CC-BY-SA-4.0
 -->
 
@@ -24,13 +24,16 @@ of `{{VARIABLE_NAME}}` that must be replaced with actual values.
 The [`use`](use) script helps setting up a new project by copying the template to a chosen location, prompting for
 *some* of the variables and replacing these variables with the given values.
 
-The [`webget.bash`] script automatically clones this repository, prompts for a target and then runs the `use` script:
+The [`webget.bash`](webget.bash) script automatically clones this repository, prompts for wa target and then runs
+the `use` script:
 
 ```sh
-curl 'https://raw.githubusercontent.com/mfederczuk/repository-template/master/webget.bash' | bash
+curl -L 'https://github.com/mfederczuk/repository-template/raw/master/webget.bash' | bash
 ```
 
-[`webget.bash`]: https://github.com/mfederczuk/repository-template/blob/master/webget.bash
+```sh
+wget -O- 'https://github.com/mfederczuk/repository-template/raw/master/webget.bash' | bash
+```
 
 ## License ##
 
