@@ -17,8 +17,6 @@
 
 ## About ##
 
-> <!-- TODO: one liner -->
-
 <!-- TODO: description -->
 
 ## Usage ##
