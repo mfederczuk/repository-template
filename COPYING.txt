@@ -3,14 +3,35 @@ A SPDX short-form identifier takes the form of:
 
         SPDX-License-Identifier: <SPDX License Expression>
 
+... and is most of the time placed somewhere at the top of a file.
 Read more about SPDX short-form identifiers here: <https://spdx.dev/ids/>
 
+A copyright notice in the form of:
 
-All files inside the 'template' directory (regardless of what is written in the 'template/LICENSE.txt',
-'template/COPYING.txt' files or what the SPDX short-form identifiers are set to in any files inside the 'template'
-directory) are published into the public domain under:
+        Copyright (c) <year> <copyright holder>
+
+... should also be present near the SPDX short-form identifier if the license is not
+the Creative Commons Zero v1.0 Universal. (as in this case a copyright notice wouldn't make sense)
+
+
+This file ('COPYING.txt') and the 'LICENSE.txt' file are published into the public domain under
+Creative Commons Zero v1.0 Universal.
+
+
+All files that don't contain a SPDX short-form identifier and don't contain any other sort of
+copyright and/or license header are verbatim copies from their original sources.
+Copyright belongs to their respectful authors. (this includes all files in the 'LICENSES' directory)
+Correct attribution should be found somewhere in these files.
+
+
+All files inside the 'template' directory (regardless of what is written in the 'template/LICENSE.txt' or
+'template/COPYING.txt' files or what the SPDX short-form identifiers are set to in any files inside
+the 'template' directory) are published into the public domain under:
 
         Creative Commons Zero v1.0 Universal (LICENSES/CC0-1.0.txt)
+
+The only exception is the 'template/CODE_OF_CONDUCT.md' file --- it is a verbatim copy and
+the previous paragraph applies. (copyright belongs to the respectful authors)
 
 
 The individual licenses, used in this repository, can be found in the 'LICENSES' directory and are also listed here:
@@ -30,5 +51,3 @@ The individual licenses, used in this repository, can be found in the 'LICENSES'
         Full name:        Mozilla Public License 2.0
         Short identifier: MPL-2.0
         Text file:        LICENSES/MPL-2.0.txt
-
-Each of these files are verbatim copies from their original source. Copyright belongs to their respectful authors.
