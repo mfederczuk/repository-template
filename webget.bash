@@ -83,9 +83,14 @@ for command_name in git sed jq find; do
 done
 unset -v command_name
 
+if [ -z "${HOME-}" ]; then
+	printf '%s: HOME environment variable must not be unset or empty\n' "$argv0" >&2
+	exit 48
+fi
+
 if [ ! -c '/dev/tty' ]; then
 	printf '%s: no controlling terminal\n' "$argv0" >&2
-	exit 48
+	exit 49
 fi
 
 # region prompting for target directory
@@ -193,7 +198,7 @@ fi
 
 if ! $sed_i_support; then
 	printf '%s: sed does not support option -i\n' "$argv0" >&2
-	exit 48
+	exit 50
 fi
 
 unset -v sed_i_support

@@ -85,6 +85,11 @@ for command_name in sed jq find; do
 done
 unset -v command_name
 
+if [ -z "${HOME-}" ]; then
+	printf '%s: HOME environment variable must not be unset or empty\n' "$argv0" >&2
+	exit 48
+fi
+
 # region cleanup
 
 declare -a _cleanup_expressions
@@ -171,7 +176,7 @@ fi
 
 if ! $sed_i_support; then
 	printf '%s: sed does not support option -i\n' "$argv0" >&2
-	exit 48
+	exit 49
 fi
 
 unset -v sed_i_support
@@ -220,7 +225,7 @@ readonly target_dir_pathname
 
 if [ ! -t 1 ]; then
 	printf '%s: stdin is not a TTY\n' "$argv0" >&2
-	exit 49
+	exit 50
 fi
 
 if [ -e "$target_dir_pathname" ]; then
@@ -292,7 +297,7 @@ while read -r line; do
 
 	if [[ ! "$line" =~ ^([[:alnum:]_]+)[[:space:]]*':'[[:space:]]*(.*)$ ]]; then
 		printf '%s: %s:%i: invalid line\n' "$argv0" "$template_vars_config_file_pathname" $row >&2
-		exit 50
+		exit 51
 	fi
 
 	declare template_var_name template_var_desc
@@ -302,7 +307,7 @@ while read -r line; do
 	if [[ ! "$template_var_name" =~ ^[A-Z_]+$ ]]; then
 		printf '%s: %s:%i: %s: template variable name must only consists of uppercase letters and underscores (/^[A-Z_]+$/)\n' \
 		       "$argv0" "$template_vars_config_file_pathname" $row "$template_var_name" >&2
-		exit 51
+		exit 52
 	fi
 
 	template_vars+=(
@@ -319,6 +324,60 @@ unset -v row \
          line
 
 # endregion
+
+declare default_template_vars_file_pathname
+default_template_vars_file_pathname="${XDG_CONFIG_HOME-"$HOME/.config"}/mfederczuk_repository_template/defaults.cfg"
+readonly default_template_vars_file_pathname
+
+if [ -e "$default_template_vars_file_pathname" ]; then
+	if [ -d "$default_template_vars_file_pathname" ]; then
+		printf '%s: %s: not a file\n' "$argv0" "$default_template_vars_file_pathname" >&2
+		exit 26
+	fi
+
+	declare line
+	declare -i row
+	row=0
+
+	while read -r line; do
+		((++row))
+
+		if [ -z "$line" ] || [[ "$line" =~ ^'#' ]]; then
+			continue
+		fi
+
+		if [[ ! "$line" =~ ^([[:alnum:]_]+)[[:space:]]*'='[[:space:]]*(.*)$ ]]; then
+			printf '%s: %s:%i: invalid line\n' "$argv0" "$default_template_vars_file_pathname" $row >&2
+			exit 53
+		fi
+
+		declare default_template_var_name default_template_var_value
+		default_template_var_name="${BASH_REMATCH[1]}"
+		default_template_var_value="${BASH_REMATCH[2]}"
+
+		declare -i i
+		for ((i = 0; i < ${#template_vars[@]}; ++i)); do
+			declare template_var_name
+			template_var_name="$(jq --null-input --raw-output --argjson var "${template_vars[i]}" '$var."name"')"
+
+			if [ "$template_var_name" = "$default_template_var_name" ]; then
+				template_vars[i]="$(jq --null-input --compact-output \
+				                       --argjson var "${template_vars[i]}" \
+				                       --arg value "$default_template_var_value" \
+				                       '$var + { $value }')"
+				break
+			fi
+
+			unset -v template_var_name
+		done
+		unset -v i
+
+		unset -v default_template_var_value default_template_var_name
+	done < "$default_template_vars_file_pathname"
+
+	unset -v row \
+	         line
+fi
 
 # region prompting user for template vars
 
