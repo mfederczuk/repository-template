@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) {{current_year}} Michael Federczuk
+  Copyright (c) {{current_year}} {{COPYRIGHT_HOLDER}}
   SPDX-License-Identifier: CC-BY-SA-4.0
 -->
 
@@ -10,7 +10,7 @@
 
 <!--
 [version_shield]: https://img.shields.io/badge/version-{{CURRENT_VERSION_NAME}}-informational.svg
-[release_page]: https://github.com/mfederczuk/{{GITHUB_REPO_NAME}}/releases/tag/v{{CURRENT_VERSION_NAME}} "Release v{{CURRENT_VERSION_NAME}}"
+[release_page]: https://github.com/{{GITHUB_REPO_OWNER}}/{{GITHUB_REPO_NAME}}/releases/tag/v{{CURRENT_VERSION_NAME}} "Release v{{CURRENT_VERSION_NAME}}"
 [![version: {{CURRENT_VERSION_NAME}}][version_shield]][release_page]
 [![Changelog](https://img.shields.io/badge/-Changelog-informational.svg)](CHANGELOG.md "Changelog")
 -->

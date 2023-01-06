@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) {{current_year}} Michael Federczuk
+  Copyright (c) {{current_year}} {{COPYRIGHT_HOLDER}}
   SPDX-License-Identifier: CC-BY-SA-4.0
 -->
 
@@ -35,7 +35,7 @@ and this project adheres to [**Semantic Versioning v2.0.0**](https://semver.org/
 
 ## [v{{RELEASE_VERSION_NAME}}] - {{RELEASE_DATE}} ##
 
-[v{{RELEASE_VERSION_NAME}}]: https://github.com/mfederczuk/{{GITHUB_REPO_NAME}}/releases/tag/v{{RELEASE_VERSION_NAME}}
+[v{{RELEASE_VERSION_NAME}}]: https://github.com/{{GITHUB_REPO_OWNER}}/{{GITHUB_REPO_NAME}}/releases/tag/v{{RELEASE_VERSION_NAME}}
 
 ### Added ###
 
@@ -59,6 +59,6 @@ and this project adheres to [**Semantic Versioning v2.0.0**](https://semver.org/
 
 ## [v{{INITIAL_RELEASE_VERSION_NAME}}] - {{INITIAL_RELEASE_DATE}} ##
 
-[v{{INITIAL_RELEASE_VERSION_NAME}}]: https://github.com/mfederczuk/{{GITHUB_REPO_NAME}}/releases/tag/v{{INITIAL_RELEASE_VERSION_NAME}}
+[v{{INITIAL_RELEASE_VERSION_NAME}}]: https://github.com/{{GITHUB_REPO_OWNER}}/{{GITHUB_REPO_NAME}}/releases/tag/v{{INITIAL_RELEASE_VERSION_NAME}}
 
 Initial Release

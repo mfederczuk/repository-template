@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) {{current_year}} Michael Federczuk
+  Copyright (c) {{current_year}} {{COPYRIGHT_HOLDER}}
   SPDX-License-Identifier: CC-BY-SA-4.0
 -->
 
@@ -31,13 +31,13 @@ But before doing anything, please read and follow these rules and guidelines:
 
 There are a variety of things that can be done to contribute:
 
-* [Creating an issue](https://github.com/mfederczuk/{{GITHUB_REPO_NAME}}/issues/new/choose)
-* [Submitting a pull request](https://github.com/mfederczuk/{{GITHUB_REPO_NAME}}/compare)
-* [Starting a new discussion](https://github.com/mfederczuk/{{GITHUB_REPO_NAME}}/discussions/new)
+* [Creating an issue](https://github.com/{{GITHUB_REPO_OWNER}}/{{GITHUB_REPO_NAME}}/issues/new/choose)
+* [Submitting a pull request](https://github.com/{{GITHUB_REPO_OWNER}}/{{GITHUB_REPO_NAME}}/compare)
+* [Starting a new discussion](https://github.com/{{GITHUB_REPO_OWNER}}/{{GITHUB_REPO_NAME}}/discussions/new)
 * Commenting on ...
-  * [Issues](https://github.com/mfederczuk/{{GITHUB_REPO_NAME}}/issues)
-  * [Pull Requests](https://github.com/mfederczuk/{{GITHUB_REPO_NAME}}/pulls)
-  * [Discussions](https://github.com/mfederczuk/{{GITHUB_REPO_NAME}}/discussions)
+  * [Issues](https://github.com/{{GITHUB_REPO_OWNER}}/{{GITHUB_REPO_NAME}}/issues)
+  * [Pull Requests](https://github.com/{{GITHUB_REPO_OWNER}}/{{GITHUB_REPO_NAME}}/pulls)
+  * [Discussions](https://github.com/{{GITHUB_REPO_OWNER}}/{{GITHUB_REPO_NAME}}/discussions)
 
 Also, keep in mind that all contributions to any files (existing or new) are subject to the [`LICENSE.txt`](LICENSE.txt)
 and [`COPYING.txt`](COPYING.txt) files.

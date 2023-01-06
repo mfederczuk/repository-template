@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) {{current_year}} Michael Federczuk
+  Copyright (c) {{current_year}} {{COPYRIGHT_HOLDER}}
   SPDX-License-Identifier: CC-BY-SA-4.0
 -->
 
