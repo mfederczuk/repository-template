@@ -1,5 +1,5 @@
 <!--
-  Copyright (c) {{current_year}} {{COPYRIGHT_HOLDER}}
+  Copyright (c) {{current_year}} {{COPYRIGHT_HOLDER_NAME}}
   SPDX-License-Identifier: CC-BY-SA-4.0
 -->
 
