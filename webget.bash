@@ -83,14 +83,33 @@ for command_name in git sed jq find; do
 done
 unset -v command_name
 
-if [ -z "${HOME-}" ]; then
-	printf '%s: HOME environment variable must not be unset or empty\n' "$argv0" >&2
-	exit 48
+# region setting up environment variables
+
+if [ -z "${XDG_CONFIG_HOME-}" ]; then
+	if [ -z "${HOME-}" ]; then
+		printf '%s: HOME environment variable must not be unset or empty\n' "$argv0" >&2
+		exit 48
+	fi
+
+	if [[ ! "$HOME" =~ ^'/' ]]; then
+		printf '%s: %s: HOME environment must be an absolute pathname\n' "$argv0" "$HOME" >&2
+		exit 49
+	fi
+
+	XDG_CONFIG_HOME="$HOME/.local"
+	export XDG_CONFIG_HOME
 fi
+
+if [[ ! "$XDG_CONFIG_HOME" =~ ^'/' ]]; then
+	printf '%s: %s: XDG_CONFIG_HOME environment must be an absolute pathname\n' "$argv0" "$XDG_CONFIG_HOME" >&2
+	exit 49
+fi
+
+# endregion
 
 if [ ! -c '/dev/tty' ]; then
 	printf '%s: no controlling terminal\n' "$argv0" >&2
-	exit 49
+	exit 50
 fi
 
 # region prompting for target directory
@@ -198,7 +217,7 @@ fi
 
 if ! $sed_i_support; then
 	printf '%s: sed does not support option -i\n' "$argv0" >&2
-	exit 50
+	exit 51
 fi
 
 unset -v sed_i_support

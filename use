@@ -85,10 +85,29 @@ for command_name in sed jq find; do
 done
 unset -v command_name
 
-if [ -z "${HOME-}" ]; then
-	printf '%s: HOME environment variable must not be unset or empty\n' "$argv0" >&2
-	exit 48
+# region setting up environment variables
+
+if [ -z "${XDG_CONFIG_HOME-}" ]; then
+	if [ -z "${HOME-}" ]; then
+		printf '%s: HOME environment variable must not be unset or empty\n' "$argv0" >&2
+		exit 48
+	fi
+
+	if [[ ! "$HOME" =~ ^'/' ]]; then
+		printf '%s: %s: HOME environment must be an absolute pathname\n' "$argv0" "$HOME" >&2
+		exit 49
+	fi
+
+	XDG_CONFIG_HOME="$HOME/.local"
+	export XDG_CONFIG_HOME
 fi
+
+if [[ ! "$XDG_CONFIG_HOME" =~ ^'/' ]]; then
+	printf '%s: %s: XDG_CONFIG_HOME environment must be an absolute pathname\n' "$argv0" "$XDG_CONFIG_HOME" >&2
+	exit 49
+fi
+
+# endregion
 
 # region cleanup
 
@@ -176,7 +195,7 @@ fi
 
 if ! $sed_i_support; then
 	printf '%s: sed does not support option -i\n' "$argv0" >&2
-	exit 49
+	exit 50
 fi
 
 unset -v sed_i_support
@@ -225,7 +244,7 @@ readonly target_dir_pathname
 
 if [ ! -t 1 ]; then
 	printf '%s: stdin is not a TTY\n' "$argv0" >&2
-	exit 50
+	exit 51
 fi
 
 if [ -e "$target_dir_pathname" ]; then
@@ -297,7 +316,7 @@ while read -r line; do
 
 	if [[ ! "$line" =~ ^([[:alnum:]_]+)[[:space:]]*':'[[:space:]]*(.*)$ ]]; then
 		printf '%s: %s:%i: invalid line\n' "$argv0" "$template_vars_config_file_pathname" $row >&2
-		exit 51
+		exit 52
 	fi
 
 	declare template_var_name template_var_desc
@@ -307,7 +326,7 @@ while read -r line; do
 	if [[ ! "$template_var_name" =~ ^[A-Z_]+$ ]]; then
 		printf '%s: %s:%i: %s: template variable name must only consists of uppercase letters and underscores (/^[A-Z_]+$/)\n' \
 		       "$argv0" "$template_vars_config_file_pathname" $row "$template_var_name" >&2
-		exit 52
+		exit 53
 	fi
 
 	template_vars+=(
@@ -326,7 +345,7 @@ unset -v row \
 # endregion
 
 declare default_template_vars_file_pathname
-default_template_vars_file_pathname="${XDG_CONFIG_HOME-"$HOME/.config"}/mfederczuk_repository_template/defaults.cfg"
+default_template_vars_file_pathname="$XDG_CONFIG_HOME/mfederczuk_repository_template/defaults.cfg"
 readonly default_template_vars_file_pathname
 
 if [ -e "$default_template_vars_file_pathname" ]; then
@@ -348,7 +367,7 @@ if [ -e "$default_template_vars_file_pathname" ]; then
 
 		if [[ ! "$line" =~ ^([[:alnum:]_]+)[[:space:]]*'='[[:space:]]*(.*)$ ]]; then
 			printf '%s: %s:%i: invalid line\n' "$argv0" "$default_template_vars_file_pathname" $row >&2
-			exit 53
+			exit 54
 		fi
 
 		declare default_template_var_name default_template_var_value
