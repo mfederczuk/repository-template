@@ -26,7 +26,7 @@ The [`use`](use) script helps setting up a new project by copying the template t
 *some* of the variables and replacing these variables with the given values.  
 To use the script, make sure that you have [jq] installed.
 
-The [`webget.bash`](webget.bash) script automatically clones this repository, prompts for wa target and then runs
+The [`webget.bash`](webget.bash) script automatically clones this repository, prompts for a target and then runs
 the `use` script:
 
 ```sh
