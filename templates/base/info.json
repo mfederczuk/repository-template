@@ -1,0 +1,27 @@
+{
+	"vars": [
+		{
+			"name": "REPO_DISPLAY_NAME",
+			"desc": "Repository display name"
+		},
+
+		{
+			"name": "COPYRIGHT_HOLDER_NAME",
+			"desc": "Copyright holder full name"
+		},
+
+		{
+			"name": "COC_ENFORCEMENT_CONTACT_METHOD",
+			"desc": "Code of Conduct enforcement contact E-mail address"
+		},
+
+		{
+			"name": "GITHUB_REPO_OWNER",
+			"desc": "GitHub repository owner (your GitHub username or the name of your organization)"
+		},
+		{
+			"name": "GITHUB_REPO_NAME",
+			"desc": "GitHub repository name"
+		}
+	]
+}

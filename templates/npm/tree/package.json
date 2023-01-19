@@ -1,0 +1,72 @@
+{
+	"name": "{{NPM_PACKAGE_NAME}}",
+	"version": "0.1.0-indev01",
+	"description": "TODO",
+	"keywords": [
+		"TODO"
+	],
+	"homepage": "https://github.com/{{GITHUB_REPO_OWNER}}/{{GITHUB_REPO_NAME}}#readme",
+	"bugs": {
+		"url": "https://github.com/{{GITHUB_REPO_OWNER}}/{{GITHUB_REPO_NAME}}/issues",
+		"email": "federczuk.michael@protonmail.com"
+	},
+	"license": "MPL-2.0 AND Apache-2.0",
+	"author": "{{AUTHOR_NAME}} <{{AUTHOR_EMAIL}}>",
+	"contributors": [
+		"{{AUTHOR_NAME}} <{{AUTHOR_EMAIL}}>"
+	],
+	"files": [
+		"bin",
+		"COPYING.txt",
+		"LICENSE.txt",
+		"LICENSES",
+		"out",
+		"types"
+	],
+	"main": "out/index.js",
+	"types": "types/index.d.ts",
+	"directories": {
+		"lib": "out",
+		"bin": "bin"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/{{GITHUB_REPO_OWNER}}/{{GITHUB_REPO_NAME}}.git"
+	},
+	"scripts": {
+		"lint": "npx --package=eslint -- eslint .",
+
+		"build": "npx --package=typescript -- tsc",
+		"build-watch": "npm run build -- --watch",
+		"clean": "rm -rf -- types/ out/",
+		"rebuild": "npm run clean && npm run build --",
+
+		"postprocess": "find out/ -type f -name '*.js' -exec npx --package=@babel/cli -- babel -o {} -- {} \\; -exec npx --package=uglify-js -- uglifyjs -o {} -- {} \\;",
+
+		"test": "npx --package=mocha -- mocha",
+		"start": "bin/hello_world",
+
+		"update-dependencies": "rm -rf types/ out/ node_modules/ package-lock.json yarn.lock && npm update --save && npx --package=npm-check-updates ncu --upgrade && npm install",
+
+		"prepare": "npm run clean && npm run lint && npm run test && npm run build && npm run postprocess"
+	},
+	"devDependencies": {
+		"@babel/cli": "^7.20.7",
+		"@babel/core": "^7.20.12",
+		"@babel/plugin-transform-runtime": "^7.19.6",
+		"@babel/preset-env": "^7.20.2",
+		"@types/mocha": "^10.0.1",
+		"@types/node": "^18.11.18",
+		"@typescript-eslint/eslint-plugin": "^5.48.2",
+		"@typescript-eslint/parser": "^5.48.2",
+		"eslint": "^8.32.0",
+		"mocha": "^10.2.0",
+		"npm-check-updates": "^16.6.2",
+		"ts-node": "^10.9.1",
+		"typescript": "^4.9.4",
+		"uglify-js": "^3.17.4"
+	},
+	"dependencies": {
+		"@babel/runtime": "^7.20.7"
+	}
+}

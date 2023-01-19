@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+// -*- js -*-
+// vim: set syntax=javascript
+// code: language=javascript
+
+// SPDX-License-Identifier: CC0-1.0
+
+require("../out/main");

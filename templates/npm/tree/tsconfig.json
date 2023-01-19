@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: CC0-1.0
+{
+	"compilerOptions": {
+		"declaration": true,
+		"declarationDir": "types",
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"module": "commonjs",
+		"noImplicitAny": true,
+		"outDir": "out",
+		"skipLibCheck": true,
+		"strict": true,
+		"target": "ES2015",
+	},
+	"include": ["src"],
+}

@@ -7,6 +7,8 @@
 
 ## About ##
 
+<!-- TODO: rewrite -->
+
 This is a generic repository template, containing:
 
 * All community standard files recommended by **GitHub**:

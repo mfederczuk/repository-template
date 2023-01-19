@@ -17,26 +17,16 @@ the Creative Commons Zero v1.0 Universal. (as in this case a copyright notice wo
 Files in which a SPDX short-form identifier cannot be used or does not fit (for whatever reason) are listed here.
 All of these files are published into the public domain under Creative Commons Zero v1.0 Universal:
 
+        .github/issue_labels.json
+        .github/pull_request_template.md
         COPYING.txt  (this file)
         LICENSE.txt
-        templates/base/info.json
-        templates/npm/info.json
 
 
-All files that don't contain a SPDX short-form identifier and don't contain any other sort of
+All files that don't contain a SPDX short-form identifier, are not listed above and don't contain any other sort of
 copyright and/or license header are verbatim copies from their original sources.
 Copyright belongs to their respectful authors. (this includes all files in the 'LICENSES' directory)
 Correct attribution should be found somewhere in these files.
-
-
-All files inside the 'templates/*/tree' directories (regardless of what is written in the 'templates/*/tree/LICENSE.txt'
-or 'templates/*/tree/COPYING.txt' files or what the SPDX short-form identifiers are set to in any files inside
-the 'templates/*/tree' directories) are published into the public domain under:
-
-        Creative Commons Zero v1.0 Universal (LICENSES/CC0-1.0.txt)
-
-The only exception are the 'templates/*/tree/CODE_OF_CONDUCT.md' files --- they are verbatim copies and
-the previous paragraph applies. (copyright belongs to the respectful authors)
 
 
 The individual licenses, used in this repository, can be found in the 'LICENSES' directory and are also listed here:

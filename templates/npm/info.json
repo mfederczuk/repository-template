@@ -1,0 +1,31 @@
+{
+	"vars": [
+		{
+			"name": "NPM_PACKAGE_NAME",
+			"desc": "npm package name (package.json » \"name\")"
+		},
+
+		"REPO_DISPLAY_NAME",
+
+		{
+			"name": "AUTHOR_NAME",
+			"desc": "Author full name"
+		},
+		{
+			"name": "AUTHOR_EMAIL",
+			"desc": "Author E-mail address"
+		},
+
+		{
+			"name": "COPYRIGHT_HOLDER_NAME",
+			"default": { "ref": "AUTHOR_NAME" }
+		},
+		{
+			"name": "COC_ENFORCEMENT_CONTACT_METHOD",
+			"default": { "ref": "AUTHOR_EMAIL" }
+		},
+
+		"GITHUB_REPO_OWNER",
+		"GITHUB_REPO_NAME"
+	]
+}
