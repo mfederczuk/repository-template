@@ -34,7 +34,7 @@ fi
 
 
 declare argv0
-if [[ "$0" =~ ^'/' ]]; then
+if [[ ! "$0" =~ ^'/' ]]; then
 	argv0="$0"
 else
 	argv0="$(basename -- "$0" && printf x)"
